@@ -34,6 +34,7 @@ class Game:
             again = input("Would you like to play another round? (yes/no): ").strip().lower()
 
             if again == "yes":
+                print("\n")
                 self.play_round()
             else:
                 break
@@ -60,27 +61,21 @@ class Game:
 
         while self._player_active or self._comp_active:
             if self._player_active:
-                print("__________Player__________")
-                turn = input("What do you want to do? Type 'hit' for another card or 'stand' if you are done: \n").strip().lower()
-
+                turn = input(
+                    "What do you want to do? Type 'hit' for another card or 'stand' if you are done. \n").strip().lower()
                 if turn == "hit":
                     self._player_hand.add_card(self._deck.draw_card())
-                    if self._player_hand.total() > 21:
-                        self._player_active = False
                 else:
                     self._player_active = False
 
-            print(f"Player hand: {self._player_hand}")
-            print(f"Computer hand: {self._comp_hand}\n")
-
-
-
-            if not self._player_active and not self._comp_active:
-                break
+                player_totals = self._player_hand.total()
+                if isinstance(player_totals, int):
+                    player_totals = [player_totals]
+                if min(player_totals) > 21:
+                    self._player_active = False
 
             if self._comp_active:
                 total = self._comp_hand.total()
-
                 if isinstance(total, int):
                     low = high = total
                 else:
@@ -92,17 +87,16 @@ class Game:
                     comp_move = "hit"
                 else:
                     comp_move = "stand"
-                print("__________Computer__________")
-                print(f"Computer chose to {comp_move}\n")
+
+                print(f"Determine what computer will do (hit/stand)\n{comp_move}")
 
                 if comp_move == "hit":
                     self._comp_hand.add_card(self._deck.draw_card())
-
-                    if not all(value > 21 for value in self._comp_hand.total()):
-                       self._comp_active = True
-                    else:
-                       self._comp_active = False
-
+                    comp_totals = self._comp_hand.total()
+                    if isinstance(comp_totals, int):
+                        comp_totals = [comp_totals]
+                    if min(comp_totals) > 21:
+                        self._comp_active = False
                 else:
                     self._comp_active = False
 
@@ -112,40 +106,14 @@ class Game:
         player_value = self._player_hand.total()
         if isinstance(player_value, int):
             player_value = [player_value]
+        player_valid = [v for v in player_value if v <= 21]
+        player_best = max(player_valid) if player_valid else min(player_value)
 
         comp_value = self._comp_hand.total()
         if isinstance(comp_value, int):
             comp_value = [comp_value]
-
-        player_valid = []
-        for value in player_value:
-            if value <= 21:
-                player_valid.append(value)
-        if len(player_valid) > 0:
-            player_best = player_valid[0]
-            for v in player_valid:
-                if v > player_best:
-                    player_best = v
-        else:
-            player_best = player_value[0]
-            for v in player_value:
-                if v < player_best:
-                    player_best = v
-
-        comp_valid = []
-        for v in comp_value:
-            if v <= 21:
-                comp_valid.append(v)
-        if len(comp_valid) > 0:
-            comp_best = comp_valid[0]
-            for v in comp_valid:
-                if v > comp_best:
-                    comp_best = v
-        else:
-            comp_best = comp_value[0]
-            for v in comp_value:
-                if v < comp_best:
-                    comp_best = v
+        comp_valid = [v for v in comp_value if v <= 21]
+        comp_best = max(comp_valid) if comp_valid else min(comp_value)
 
         if player_best > 21 and comp_best > 21:
             winner = "Neither"
@@ -162,6 +130,7 @@ class Game:
 
         self._results.append((winner, player_best, comp_best))
         print(f"Winner of this round: {winner}")
+
     def output_game_results(self, filename):
         with open(filename, "w") as f:
             round_num = 1
