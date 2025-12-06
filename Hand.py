@@ -1,3 +1,4 @@
+from Card import *
 class Hand:
     def __init__(self):
         self.cards = []
@@ -22,17 +23,22 @@ class Hand:
 
         if aces == 0:
             return total
-        # while total > 21 and aces > 0:
-        #     total -= 10
-        #     aces -= 1
-        low_total = total - (aces * 10)
-        high_total = total
 
+        low_total = total - aces * 10
+        if low_total == total:
+            return total
 
-        return (low_total, high_total)
+        return (low_total, total)
 
     def __str__(self):
         if len(self.cards) == 0:
             return "Empty Hand"
         else:
-            return f"{{{', '.join(str(card) for card in self.cards)}}}, Total: ({self.total()})"
+            cards_str = ', '.join(str(card) for card in self.cards)
+            hand_total = self.total()
+            if isinstance(hand_total, tuple):
+                total_str = f"({hand_total[0]}, {hand_total[1]})"
+            else:
+                total_str = str(hand_total)
+            return f"{{{cards_str}}}, Total: {total_str}"
+
