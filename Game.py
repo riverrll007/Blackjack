@@ -1,0 +1,188 @@
+"""
+********************
+CS 1026 Fall 2025
+Assignment 4: Blackjack
+Created by: River Levine LaFramenta
+Student ID: rlevinel
+Student Number: 251499864
+File Created: December 5, 2025
+********************
+This file is used to simulate a game of Blackjack.
+The game is in the format of player vs computer.
+The user will be delt two cards, and will need to make decisions to "hit" or "hold".
+To win the game, the user much obtain cards with a higher value then the computer's cards
+without going over 21, where they would "bust" and instantly lose.
+"""
+from Deck import *
+from Hand import *
+class Game:
+    def __init__(self, num_decks = 1):
+        self._deck = Deck(num_decks)
+        self._deck.shuffle()
+
+        self._player_hand = Hand()
+        self._comp_hand = Hand()
+        self._player_active = True
+        self._comp_active = True
+        self._results = []
+
+    def play(self):
+
+        self.play_round()
+
+        while True:
+            again = input("Would you like to play another round? (yes/no): ").strip().lower()
+
+            if again == "yes":
+                self.play_round()
+            else:
+                break
+        while True:
+            filename = input("Enter a filename ending in .txt: ").strip()
+            if filename.endswith(".txt"):
+                break
+
+        self.output_game_results(filename)
+
+    def play_round(self):
+        self._player_hand = Hand()
+        self._comp_hand = Hand()
+        self._player_active = True
+        self._comp_active = True
+
+        self._player_hand.add_card(self._deck.draw_card())
+        self._comp_hand.add_card(self._deck.draw_card())
+        self._player_hand.add_card(self._deck.draw_card())
+        self._comp_hand.add_card(self._deck.draw_card())
+
+        print(f"Player hand: {self._player_hand}")
+        print(f"Computer hand: {self._comp_hand}")
+
+        while self._player_active or self._comp_active:
+            if self._player_active:
+                print("__________Player__________")
+                turn = input("What do you want to do? Type 'hit' for another card or 'stand' if you are done: \n").strip().lower()
+
+                if turn == "hit":
+                    self._player_hand.add_card(self._deck.draw_card())
+                    if self._player_hand.total() > 21:
+                        self._player_active = False
+                else:
+                    self._player_active = False
+
+            print(f"Player hand: {self._player_hand}")
+            print(f"Computer hand: {self._comp_hand}\n")
+
+
+
+            if not self._player_active and not self._comp_active:
+                break
+
+            if self._comp_active:
+                total = self._comp_hand.total()
+
+                if isinstance(total, int):
+                    low = high = total
+                else:
+                    low, high = total
+
+                if high == 21:
+                    comp_move = "stand"
+                elif low < 17:
+                    comp_move = "hit"
+                else:
+                    comp_move = "stand"
+                print("__________Computer__________")
+                print(f"Computer chose to {comp_move}\n")
+
+                if comp_move == "hit":
+                    self._comp_hand.add_card(self._deck.draw_card())
+
+                    if not all(value > 21 for value in self._comp_hand.total()):
+                       self._comp_active = True
+                    else:
+                       self._comp_active = False
+
+                else:
+                    self._comp_active = False
+
+            print(f"Player hand: {self._player_hand}")
+            print(f"Computer hand: {self._comp_hand}\n")
+
+        player_value = self._player_hand.total()
+        if isinstance(player_value, int):
+            player_value = [player_value]
+
+        comp_value = self._comp_hand.total()
+        if isinstance(comp_value, int):
+            comp_value = [comp_value]
+
+        player_valid = []
+        for value in player_value:
+            if value <= 21:
+                player_valid.append(value)
+        if len(player_valid) > 0:
+            player_best = player_valid[0]
+            for v in player_valid:
+                if v > player_best:
+                    player_best = v
+        else:
+            player_best = player_value[0]
+            for v in player_value:
+                if v < player_best:
+                    player_best = v
+
+        comp_valid = []
+        for v in comp_value:
+            if v <= 21:
+                comp_valid.append(v)
+        if len(comp_valid) > 0:
+            comp_best = comp_valid[0]
+            for v in comp_valid:
+                if v > comp_best:
+                    comp_best = v
+        else:
+            comp_best = comp_value[0]
+            for v in comp_value:
+                if v < comp_best:
+                    comp_best = v
+
+        if player_best > 21 and comp_best > 21:
+            winner = "Neither"
+        elif player_best > 21:
+            winner = "Computer"
+        elif comp_best > 21:
+            winner = "Player"
+        elif player_best > comp_best:
+            winner = "Player"
+        elif comp_best > player_best:
+            winner = "Computer"
+        else:
+            winner = "Draw"
+
+        self._results.append((winner, player_best, comp_best))
+        print(f"Winner of this round: {winner}")
+    def output_game_results(self, filename):
+        with open(filename, "w") as f:
+            round_num = 1
+
+            for result in self._results:
+                winner, player_score, comp_score = result
+
+                if player_score > 21:
+                    player_value = "bust"
+                else:
+                    player_value = str(player_score)
+                if comp_score > 21:
+                    comp_value = "bust"
+                else:
+                    comp_value = str(comp_score)
+
+                f.write(f"Round {round_num}\n")
+                f.write(f"Player: {player_value}\n")
+                f.write(f"Computer: {comp_value}\n")
+                f.write(f"Winner: {winner}\n")
+
+                if round_num < len(self._results):
+                    f.write("\n")
+                round_num += 1
