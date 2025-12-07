@@ -148,4 +148,4 @@ class Game:
                 output_blocks.append(block)
                 round_num += 1
             
-            f.write("\n\n".join(output_blocks))
+            f.write("\n\n".join(output_blocks) + "\n")
