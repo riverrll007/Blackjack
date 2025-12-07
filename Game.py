@@ -56,8 +56,8 @@ class Game:
         self._player_hand.add_card(self._deck.draw_card())
         self._comp_hand.add_card(self._deck.draw_card())
 
-        print(f"Player hand: {self._player_hand}")
-        print(f"Computer hand: {self._comp_hand}")
+        print(f"Player:   {self._player_hand}")
+        print(f"Computer: {self._comp_hand}")
 
         while self._player_active or self._comp_active:
             if self._player_active:
@@ -100,8 +100,8 @@ class Game:
                 else:
                     self._comp_active = False
 
-            print(f"Player hand: {self._player_hand}")
-            print(f"Computer hand: {self._comp_hand}\n")
+            print(f"Player:   {self._player_hand}")
+            print(f"Computer: {self._comp_hand}\n")
 
         player_value = self._player_hand.total()
         if isinstance(player_value, int):
@@ -129,7 +129,7 @@ class Game:
             winner = "Draw"
 
         self._results.append((winner, player_best, comp_best))
-        print(f"Winner of this round: {winner}")
+        print(f"The round has ended. Winner: {winner}")
 
     def output_game_results(self, filename):
         with open(filename, "w") as f:
