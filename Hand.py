@@ -16,7 +16,7 @@ class Hand:
             if rank in ["J", "Q", "K"]:
                 total += 10
             elif rank == "A":
-                total += 11
+                total += 1
                 aces += 1
             else:
                 total += int(rank)
@@ -24,15 +24,14 @@ class Hand:
         if aces == 0:
             return total
 
-        low_total = total - aces * 10
-        if low_total == total:
-            return total
+        low_total = total
+        high_total = + 10
 
-        return (low_total, total)
+        return (low_total, high_total)
 
     def __str__(self):
         if len(self.cards) == 0:
-            return "Empty Hand"
+            return "Empty hand"
         else:
             cards_str = ', '.join(str(card) for card in self.cards)
             hand_total = self.total()
