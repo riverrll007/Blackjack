@@ -15,11 +15,11 @@ without going over 21, where they would "bust" and instantly lose.
 """
 from Deck import *
 from Hand import *
+
 class Game:
-    def __init__(self, num_decks = 1):
+    def __init__(self, num_decks=1):
         self._deck = Deck(num_decks)
         self._deck.shuffle()
-
         self._player_hand = Hand()
         self._comp_hand = Hand()
         self._player_active = True
@@ -27,25 +27,23 @@ class Game:
         self._results = []
 
     def play(self):
-
         self.play_round()
 
         while True:
-            again = input("Would you like to play another round? (yes/no): ").strip().lower()
-
+            again = input("Do you want to play again? (yes/no): ").strip().lower()
             if again == "yes":
                 self.play_round()
             else:
                 break
+        
         while True:
-            filename = input("Enter a filename ending in .txt: ").strip()
+            filename = input("Enter filename (ending in .txt) for the game results: ").strip()
             if filename.endswith(".txt"):
                 break
-
+        
         self.output_game_results(filename)
 
     def play_round(self):
-
         self._player_hand = Hand()
         self._comp_hand = Hand()
         self._player_active = True
@@ -61,17 +59,15 @@ class Game:
 
         while self._player_active or self._comp_active:
             if self._player_active:
-                turn = input(
-                    "What do you want to do? Type 'hit' for another card or 'stand' if you are done. \n").strip().lower()
+                turn = input("What do you want to do? Type 'hit' for another card or 'stand' if you are done. \n").strip().lower()
                 if turn == "hit":
                     self._player_hand.add_card(self._deck.draw_card())
+                    player_totals = self._player_hand.total()
+                    if isinstance(player_totals, int):
+                        player_totals = [player_totals]
+                    if min(player_totals) > 21:
+                        self._player_active = False
                 else:
-                    self._player_active = False
-
-                player_totals = self._player_hand.total()
-                if isinstance(player_totals, int):
-                    player_totals = [player_totals]
-                if min(player_totals) > 21:
                     self._player_active = False
 
             if self._comp_active:
@@ -134,7 +130,8 @@ class Game:
     def output_game_results(self, filename):
         with open(filename, "w") as f:
             round_num = 1
-
+            output_blocks = []
+            
             for result in self._results:
                 winner, player_score, comp_score = result
 
@@ -147,13 +144,8 @@ class Game:
                 else:
                     comp_value = str(comp_score)
 
-                f.write(f"Round {round_num}\n")
-                f.write(f"Player: {player_value}\n")
-                f.write(f"Computer: {comp_value}\n")
-                f.write(f"Winner: {winner}\n")
-
-
-                f.write("\n")
+                block = f"Round {round_num}\nPlayer: {player_value}\nComputer: {comp_value}\nWinner: {winner}"
+                output_blocks.append(block)
                 round_num += 1
-        with open(filename, "a") as f:
-            f.write("")
+            
+            f.write("\n\n".join(output_blocks))
