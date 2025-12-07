@@ -15,8 +15,10 @@ without going over 21, where they would "bust" and instantly lose.
 """
 from Deck import *
 from Hand import *
+
 class Game:
     def __init__(self, num_decks = 1):
+        self._num_decks = num_decks     
         self._deck = Deck(num_decks)
         self._deck.shuffle()
 
@@ -34,10 +36,10 @@ class Game:
             again = input("Would you like to play another round? (yes/no): ").strip().lower()
 
             if again == "yes":
-                print("\n")
                 self.play_round()
             else:
                 break
+
         while True:
             filename = input("Enter a filename ending in .txt: ").strip()
             if filename.endswith(".txt"):
@@ -46,17 +48,27 @@ class Game:
         self.output_game_results(filename)
 
     def play_round(self):
+
+        self._deck = Deck(self._num_decks)
+        self._deck.shuffle()
+
         self._player_hand = Hand()
         self._comp_hand = Hand()
         self._player_active = True
         self._comp_active = True
 
-        self._player_hand.add_card(self._deck.draw_card())
-        self._comp_hand.add_card(self._deck.draw_card())
-        self._player_hand.add_card(self._deck.draw_card())
-        self._comp_hand.add_card(self._deck.draw_card())
+        def draw_safe():
+            if len(self._deck.cards) == 0:
+                self._deck = Deck(self._num_decks)
+                self._deck.shuffle()
+            return self._deck.draw_card()
 
-        print(f"Player: {self._player_hand}")
+        self._player_hand.add_card(draw_safe())
+        self._comp_hand.add_card(draw_safe())
+        self._player_hand.add_card(draw_safe())
+        self._comp_hand.add_card(draw_safe())
+
+        print(f"Player:   {self._player_hand}")
         print(f"Computer: {self._comp_hand}")
 
         while self._player_active or self._comp_active:
@@ -64,7 +76,7 @@ class Game:
                 turn = input(
                     "What do you want to do? Type 'hit' for another card or 'stand' if you are done. \n").strip().lower()
                 if turn == "hit":
-                    self._player_hand.add_card(self._deck.draw_card())
+                    self._player_hand.add_card(draw_safe())
                 else:
                     self._player_active = False
 
@@ -88,10 +100,10 @@ class Game:
                 else:
                     comp_move = "stand"
 
-                #print(f"Determine what computer will do (hit/stand)\n{comp_move}")
+                # print(f"Determine what computer will do (hit/stand)\n{comp_move}")
 
                 if comp_move == "hit":
-                    self._comp_hand.add_card(self._deck.draw_card())
+                    self._comp_hand.add_card(draw_safe())
                     comp_totals = self._comp_hand.total()
                     if isinstance(comp_totals, int):
                         comp_totals = [comp_totals]
@@ -100,8 +112,8 @@ class Game:
                 else:
                     self._comp_active = False
 
-            print(f"Player: {self._player_hand}")
-            print(f"Computer: {self._comp_hand}\n")
+            print(f"Player:   {self._player_hand}")
+            print(f"Computer: {self._comp_hand}")
 
         player_value = self._player_hand.total()
         if isinstance(player_value, int):
@@ -150,8 +162,9 @@ class Game:
                 f.write(f"Round {round_num}\n")
                 f.write(f"Player: {player_value}\n")
                 f.write(f"Computer: {comp_value}\n")
-                f.write(f"Winner: {winner}\n")
+                f.write(f"Winner: {winner}\n\n")
 
-                if round_num < len(self._results):
-                    f.write("\n")
                 round_num += 1
+
+        with open(filename, "a") as f:
+            f.write("")
