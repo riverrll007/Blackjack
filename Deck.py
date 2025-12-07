@@ -8,7 +8,7 @@ class Deck:
         ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
         suits = ["Clubs", "Diamonds", "Hearts", "Spades"]
 
-        for card in range(num_decks):
+        for deck in range(num_decks):
             for suit in suits:
                 for rank in ranks:
                     self.cards.append(Card(rank, suit))
@@ -18,6 +18,6 @@ class Deck:
 
     def draw_card(self):
         if len(self.cards) > 0:
-            return self.cards.pop()
+            return self.cards.pop(0)
         else:
             return None
