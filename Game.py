@@ -56,7 +56,7 @@ class Game:
         self._player_hand.add_card(self._deck.draw_card())
         self._comp_hand.add_card(self._deck.draw_card())
 
-        print(f"Player:   {self._player_hand}")
+        print(f"Player: {self._player_hand}")
         print(f"Computer: {self._comp_hand}")
 
         while self._player_active or self._comp_active:
@@ -88,7 +88,7 @@ class Game:
                 else:
                     comp_move = "stand"
 
-                print(f"Determine what computer will do (hit/stand)\n{comp_move}")
+                #print(f"Determine what computer will do (hit/stand)\n{comp_move}")
 
                 if comp_move == "hit":
                     self._comp_hand.add_card(self._deck.draw_card())
@@ -100,7 +100,7 @@ class Game:
                 else:
                     self._comp_active = False
 
-            print(f"Player:   {self._player_hand}")
+            print(f"Player: {self._player_hand}")
             print(f"Computer: {self._comp_hand}\n")
 
         player_value = self._player_hand.total()
