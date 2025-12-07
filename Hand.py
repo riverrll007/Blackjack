@@ -25,7 +25,7 @@ class Hand:
             return total
 
         low_total = total
-        high_total = + 10
+        high_total = total + 10
 
         return (low_total, high_total)
 
